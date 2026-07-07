@@ -18,6 +18,8 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setLoadingId(null);
+
     if (getCurrentUser()) {
       router.replace("/");
       return;
@@ -37,12 +39,25 @@ export default function LoginPage() {
     setLoadingId(user.id);
     setError(null);
 
-    setCurrentUser({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-    });
-    router.replace("/");
+    try {
+      setCurrentUser({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      });
+      router.replace("/");
+
+      // If route transition does not complete and user remains on /login,
+      // recover button state so it never stays stuck at "Signing in...".
+      setTimeout(() => {
+        if (window.location.pathname === "/login") {
+          setLoadingId(null);
+        }
+      }, 1200);
+    } catch (err) {
+      setLoadingId(null);
+      setError(err instanceof Error ? err.message : "Failed to sign in");
+    }
   }
 
   const alice = users.find((u) => u.email === "alice@test.com");
