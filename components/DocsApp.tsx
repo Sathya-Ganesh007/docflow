@@ -34,7 +34,7 @@ export function DocsApp() {
   const [creating, setCreating] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
-  const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [clearEditorSelection, setClearEditorSelection] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -79,7 +79,7 @@ export function DocsApp() {
   useEffect(() => {
     if (!selectedDocumentId) {
       setActiveDocument(null);
-      setLastSavedAt(null);
+      setLastSaved(null);
       setSaveStatus("idle");
       return;
     }
@@ -92,7 +92,7 @@ export function DocsApp() {
       .then((doc) => {
         if (!cancelled) {
           setActiveDocument(doc);
-          setLastSavedAt(doc?.updated_at ?? null);
+          setLastSaved(null);
         }
       })
       .catch(() => {
@@ -117,7 +117,7 @@ export function DocsApp() {
       await loadDocuments(user.id);
       setSelectedDocumentId(doc.id);
       setActiveDocument(doc);
-      setLastSavedAt(doc.updated_at);
+      setLastSaved(null);
       setSaveStatus("idle");
     } catch (err) {
       setError(
@@ -143,7 +143,7 @@ export function DocsApp() {
     setActiveDocument((prev) =>
       prev ? { ...prev, title, updated_at: updatedAt } : prev,
     );
-    setLastSavedAt(updatedAt);
+    setLastSaved(new Date());
   };
 
   const handleSelectDocument = (id: string) => {
@@ -164,7 +164,7 @@ export function DocsApp() {
       setClearEditorSelection(true);
       setSelectedDocumentId(doc.id);
       setActiveDocument(doc);
-      setLastSavedAt(doc.updated_at);
+      setLastSaved(null);
       setSaveStatus("idle");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to upload file");
@@ -192,7 +192,7 @@ export function DocsApp() {
     setActiveDocument((prev) =>
       prev && prev.id === id ? { ...prev, title, updated_at: updatedAt } : prev,
     );
-    setLastSavedAt((prev) => (activeDocument?.id === id ? updatedAt : prev));
+    setLastSaved((prev) => (activeDocument?.id === id ? new Date() : prev));
   };
 
   const handleSidebarDocumentDeleted = (id: string) => {
@@ -200,14 +200,14 @@ export function DocsApp() {
     setSharedDocuments((prev) => prev.filter((doc) => doc.id !== id));
     setActiveDocument((prev) => (prev?.id === id ? null : prev));
     setSelectedDocumentId((prev) => (prev === id ? null : prev));
-    setLastSavedAt((prev) => (activeDocument?.id === id ? null : prev));
+    setLastSaved((prev) => (activeDocument?.id === id ? null : prev));
     setSaveStatus("idle");
   };
 
   const topbarTitle = activeDocument?.title ?? "DocFlow";
   const lastSavedLabel = useMemo(() => {
-    if (!lastSavedAt) return null;
-    const diffMs = Date.now() - new Date(lastSavedAt).getTime();
+    if (!lastSaved) return null;
+    const diffMs = Date.now() - lastSaved.getTime();
     const minutes = Math.max(0, Math.floor(diffMs / 60000));
     if (minutes < 1) return "just now";
     if (minutes === 1) return "1 min ago";
@@ -215,7 +215,7 @@ export function DocsApp() {
     const hours = Math.floor(minutes / 60);
     if (hours === 1) return "1 hour ago";
     return `${hours} hours ago`;
-  }, [lastSavedAt]);
+  }, [lastSaved]);
 
   return (
     <div className="flex min-h-svh w-full">
