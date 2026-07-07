@@ -141,7 +141,9 @@ export function DocsApp() {
     setMyDocuments(updateList);
     setSharedDocuments(updateList);
     setActiveDocument((prev) =>
-      prev ? { ...prev, title, updated_at: updatedAt } : prev,
+      prev && prev.id === selectedDocumentId && prev.title !== title
+        ? { ...prev, title }
+        : prev,
     );
     setLastSaved(new Date());
   };

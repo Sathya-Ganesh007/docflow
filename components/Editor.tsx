@@ -199,23 +199,17 @@ export function Editor({
     titleRef.current = initialTitle;
     contentRef.current = initialContent;
     pendingSave.current = false;
-    editor?.commands.setContent(initialContent || "");
+  }, [documentId, initialTitle, initialContent]);
 
-    if (clearSelectionOnLoad && editor) {
-      requestAnimationFrame(() => {
-        editor.commands.selectAll();
-        editor.commands.setTextSelection(0);
-        onSelectionCleared?.();
-      });
-    }
-  }, [
-    documentId,
-    initialTitle,
-    initialContent,
-    editor,
-    clearSelectionOnLoad,
-    onSelectionCleared,
-  ]);
+  useEffect(() => {
+    if (!clearSelectionOnLoad || !editor) return;
+
+    requestAnimationFrame(() => {
+      editor.commands.selectAll();
+      editor.commands.setTextSelection(0);
+      onSelectionCleared?.();
+    });
+  }, [clearSelectionOnLoad, editor, onSelectionCleared]);
 
   const saveContent = useCallback(async () => {
     if (!pendingSave.current) return;
