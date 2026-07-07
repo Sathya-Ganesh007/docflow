@@ -157,6 +157,8 @@ export function Editor({
 }: EditorProps) {
   const [title, setTitle] = useState(initialTitle);
   const pendingSave = useRef(false);
+  const isFormattingChange = useRef(false);
+  const formattingResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const titleRef = useRef(title);
   const contentRef = useRef(initialContent);
 
@@ -172,9 +174,23 @@ export function Editor({
     },
     onUpdate: ({ editor: ed }) => {
       contentRef.current = ed.getHTML();
-      pendingSave.current = true;
+      if (!isFormattingChange.current) {
+        pendingSave.current = true;
+      }
     },
   });
+
+  const runFormattingAction = useCallback((action: () => void) => {
+    isFormattingChange.current = true;
+    action();
+
+    if (formattingResetTimer.current) {
+      clearTimeout(formattingResetTimer.current);
+    }
+    formattingResetTimer.current = setTimeout(() => {
+      isFormattingChange.current = false;
+    }, 100);
+  }, []);
 
   useEffect(() => {
     setTitle(initialTitle);
@@ -236,6 +252,14 @@ export function Editor({
     return () => clearInterval(interval);
   }, [saveContent]);
 
+  useEffect(() => {
+    return () => {
+      if (formattingResetTimer.current) {
+        clearTimeout(formattingResetTimer.current);
+      }
+    };
+  }, []);
+
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <div className="border-b px-6 py-3">
@@ -251,21 +275,33 @@ export function Editor({
           <ToolbarButton
             title="Bold"
             active={editor.isActive("bold")}
-            onClick={() => editor.chain().focus().toggleBold().run()}
+            onClick={() =>
+              runFormattingAction(() => {
+                editor.chain().focus().toggleBold().run();
+              })
+            }
           >
             <Bold className="size-4" />
           </ToolbarButton>
           <ToolbarButton
             title="Italic"
             active={editor.isActive("italic")}
-            onClick={() => editor.chain().focus().toggleItalic().run()}
+            onClick={() =>
+              runFormattingAction(() => {
+                editor.chain().focus().toggleItalic().run();
+              })
+            }
           >
             <Italic className="size-4" />
           </ToolbarButton>
           <ToolbarButton
             title="Underline"
             active={editor.isActive("underline")}
-            onClick={() => editor.chain().focus().toggleUnderline().run()}
+            onClick={() =>
+              runFormattingAction(() => {
+                editor.chain().focus().toggleUnderline().run();
+              })
+            }
           >
             <UnderlineIcon className="size-4" />
           </ToolbarButton>
@@ -274,7 +310,9 @@ export function Editor({
             title="Heading 1"
             active={editor.isActive("heading", { level: 1 })}
             onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 1 }).run()
+              runFormattingAction(() => {
+                editor.chain().focus().toggleHeading({ level: 1 }).run();
+              })
             }
           >
             <Heading1 className="size-4" />
@@ -283,7 +321,9 @@ export function Editor({
             title="Heading 2"
             active={editor.isActive("heading", { level: 2 })}
             onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 2 }).run()
+              runFormattingAction(() => {
+                editor.chain().focus().toggleHeading({ level: 2 }).run();
+              })
             }
           >
             <Heading2 className="size-4" />
@@ -292,14 +332,22 @@ export function Editor({
           <ToolbarButton
             title="Bullet List"
             active={editor.isActive("bulletList")}
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            onClick={() =>
+              runFormattingAction(() => {
+                editor.chain().focus().toggleBulletList().run();
+              })
+            }
           >
             <List className="size-4" />
           </ToolbarButton>
           <ToolbarButton
             title="Numbered List"
             active={editor.isActive("orderedList")}
-            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            onClick={() =>
+              runFormattingAction(() => {
+                editor.chain().focus().toggleOrderedList().run();
+              })
+            }
           >
             <ListOrdered className="size-4" />
           </ToolbarButton>
