@@ -46,9 +46,17 @@ function ToolbarButton({
       type="button"
       variant="ghost"
       size="icon"
-      className={cn("size-8", active && "bg-accent text-accent-foreground")}
+      className={cn(
+        "size-8 transition-colors",
+        active && "bg-accent text-accent-foreground",
+      )}
+      onMouseDown={(e) => {
+        // Keep current editor selection stable when clicking toolbar controls.
+        e.preventDefault();
+      }}
       onClick={onClick}
       title={title}
+      aria-pressed={active}
     >
       {children}
     </Button>

@@ -126,3 +126,19 @@
 .tiptap p {
   margin: 0.5rem 0;
 }
+
+.tiptap strong {
+  font-weight: 700;
+}
+
+.tiptap em {
+  font-style: italic;
+}
+
+.tiptap u {
+  text-decoration: underline;
+}
+
+.tiptap li {
+  margin: 0.25rem 0;
+}
