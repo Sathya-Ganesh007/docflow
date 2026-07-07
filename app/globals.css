@@ -142,3 +142,43 @@
 .tiptap li {
   margin: 0.25rem 0;
 }
+
+.ProseMirror h1 {
+  @apply text-4xl font-bold my-2;
+}
+
+.ProseMirror h2 {
+  @apply text-2xl font-semibold my-2;
+}
+
+.ProseMirror p {
+  @apply text-base my-1;
+}
+
+.ProseMirror strong {
+  @apply font-bold;
+}
+
+.ProseMirror em {
+  @apply italic;
+}
+
+.ProseMirror u {
+  @apply underline;
+}
+
+.ProseMirror ul {
+  @apply list-disc pl-6 my-2;
+}
+
+.ProseMirror ol {
+  @apply list-decimal pl-6 my-2;
+}
+
+.ProseMirror li {
+  @apply my-1;
+}
+
+.ProseMirror:focus {
+  @apply outline-none;
+}
