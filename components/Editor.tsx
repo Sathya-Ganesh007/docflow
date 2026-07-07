@@ -189,6 +189,8 @@ export function Editor({
     }
     formattingResetTimer.current = setTimeout(() => {
       isFormattingChange.current = false;
+      // Persist formatting changes after selection settles.
+      pendingSave.current = true;
     }, 100);
   }, []);
 
